@@ -1,16 +1,17 @@
 import { randomUUID } from 'crypto';
 import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
+import { formatToISODate } from '~/utils/datetime';
 
 const id = text('id')
   .primaryKey()
   .notNull()
   .$defaultFn(() => randomUUID());
-const createdAt = integer('created_at')
+const createdAt = text('created_at')
   .notNull()
-  .$defaultFn(() => Date.now());
-const updatedAt = integer('updated_at')
+  .$defaultFn(() => formatToISODate(Date.now()));
+const updatedAt = text('updated_at')
   .notNull()
-  .$defaultFn(() => Date.now());
+  .$defaultFn(() => formatToISODate(Date.now()))
 
 // TG users
 export const tgUsersTable = sqliteTable('tg_users', {
@@ -26,11 +27,11 @@ export const tasksTable = sqliteTable('tasks', {
   rawText: text('raw_text').notNull(),
   rawDeliveryAt: text('raw_delivery_at'),
   parsedJson: text('parsed_json'),
-  nextRunAt: integer('next_run_at'),
   timezone: text('timezone').notNull(),
   type: text('type').notNull().default('reminder'), // reminder
   status: text('status').notNull().default('active'), // active | paused | done | error
-  lastRunAt: integer('last_run_at'),
+  nextRunAt: text('next_run_at'),
+  lastRunAt: text('last_run_at'),
   tgUserId: integer('tg_user_id')
     .notNull()
     .references(() => tgUsersTable.id, { onDelete: 'cascade' }),

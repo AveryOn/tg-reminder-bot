@@ -7,7 +7,7 @@ import { buildDayTasksMap, DayTasksMap, ReminderParseResult, Task } from '~/db/t
 import { TelegramClient } from 'telegram';
 import { NewMessage, NewMessageEvent } from 'telegram/events';
 import { eq } from 'drizzle-orm';
-import { calcNextRunAt, compareDates, getTimeByTemplate, getTZ, parseTimeToMs, today } from '~/utils/datetime';
+import { calcNextRunAt, compareDates, formatToISODate, getTimeByTemplate, getTZ, parseTimeToMs, today } from '~/utils/datetime';
 import z from 'zod';
 import { StringSession } from 'telegram/sessions';
 import { env } from '~/env';
@@ -135,7 +135,6 @@ export async function scheduleStart() {
   } catch (err) {
     console.error('[ERROR] Ошибка при запуске Scheduler', err)
   }
-
 }
 
 export async function handlerRawDataByAI(data: PostCreateSchema) {
@@ -308,10 +307,10 @@ export async function handlerBotCommands(
     }
 
     // Дата и время следующего вызова задачи
-    const nextRunAt = moment(
+    const nextRunAt = formatToISODate(moment(
       `${parsedJSON.next_date}T${parsedJSON.time}`,
       'DD.MM.YYYYTHH:mm:ss',
-    ).valueOf();
+    ).valueOf());
 
     // Обновляем напоминание -> делаем его активным
     await db
@@ -320,7 +319,7 @@ export async function handlerBotCommands(
         parsedJson: JSON.stringify(parsedJSON),
         nextRunAt,
         status: TaskStatus.active,
-        updatedAt: Date.now(),
+        updatedAt: formatToISODate(Date.now()),
         rawDeliveryAt: text,
       })
       .where(eq(tasksTable.id, reminder.id))
@@ -410,7 +409,8 @@ async function callReadyTasks(tasks: Task[]) {
   for (let i = 0; i < tasks.length; i++) {
 
     const task = tasks[i];
-    const nextRunAt = calcNextRunAt(task)
+    const rawNextRunAt = calcNextRunAt(task)
+    const nextRunAt = rawNextRunAt ? formatToISODate(rawNextRunAt) : null
     console.debug('READY TASK:', { task });
 
     if(task.tgUserId) {
@@ -426,12 +426,12 @@ async function callReadyTasks(tasks: Task[]) {
       await db
         .update(tasksTable)
         .set({
-          updatedAt: Date.now(),
           status: !repeatableTask
             ? TaskStatus.done
             : TaskStatus.active,
-          lastRunAt: Date.now(),
+          lastRunAt: formatToISODate(Date.now()),
           nextRunAt: nextRunAt,
+          updatedAt: formatToISODate(Date.now()),
         })
         .where(eq(tasksTable.id, task.id))
 

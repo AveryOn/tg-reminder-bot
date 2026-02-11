@@ -12,7 +12,7 @@ export function createDatabaseDir() {
   catch (err) {
     // Если ошибка связанная с отсутствием директории то её необходимо создать
     if(err && (err as any)?.code === 'ENOENT') {
-      console.error('Creating the database directory...')
+      console.warn('[INFO] Creating the database directory...')
       mkdirSync('./data/')
     }
   }

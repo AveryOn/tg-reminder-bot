@@ -102,3 +102,8 @@ export function calcNextRunAt(task: Task): number | null {
 
   return base.valueOf();
 }
+
+/** Преобразовать unix мс в вид `'YYYY-MM-DDTHH:mm:ss.000Z'` */
+export function formatToISODate(timestamp: number) {
+  return new Date(timestamp).toISOString()
+}
