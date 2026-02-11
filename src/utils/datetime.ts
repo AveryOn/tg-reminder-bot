@@ -25,6 +25,19 @@ export function parseTimeToMs(
 }
 
 /**
+ * Приводит время к определенному формату
+ * @returns например строку вида `DD.MM.YYYYTHH:mm:ss`
+ * */
+export function formatDateTime(
+  /** текущая дата и время в формате Date | number */
+  datetime?: Date | number | null,
+  /** Шаблон к которому приводим время */
+  template = 'DD.MM.YYYYTHH:mm:ss',
+) {
+  return moment(datetime || Date.now()).format(template);
+}
+
+/**
  * @returns 'UTC+4'
  */
 export function getTZ() {

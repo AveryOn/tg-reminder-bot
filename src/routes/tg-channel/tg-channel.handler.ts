@@ -7,7 +7,7 @@ import { buildDayTasksMap, DayTasksMap, ReminderParseResult, Task } from '~/db/t
 import { TelegramClient } from 'telegram';
 import { NewMessage, NewMessageEvent } from 'telegram/events';
 import { eq } from 'drizzle-orm';
-import { calcNextRunAt, compareDates, formatToISODate, getTimeByTemplate, getTZ, parseTimeToMs, today } from '~/utils/datetime';
+import { calcNextRunAt, compareDates, formatDateTime, formatToISODate, getTimeByTemplate, getTZ, parseTimeToMs, today } from '~/utils/datetime';
 import z from 'zod';
 import { StringSession } from 'telegram/sessions';
 import { env } from '~/env';
@@ -20,7 +20,7 @@ export enum UserCurrentStep {
   reminder_success_created = 'reminder_success_created',
   seeing_today_reminder_list = 'seeing_today_reminder_list',
 }
-const userCallContext: Record<string, UserCurrentStep | string> = {};
+export const userCallContext: Record<string, UserCurrentStep | string> = {};
 
 const TG_API_ID = env.TG_API_ID;
 const TG_API_KEY = env.TG_API_KEY;
@@ -43,7 +43,7 @@ export async function botStart() {
   console.debug('[INFO] TG_BOT has been started!')
 }
 
-async function buildTasksMap() {
+export async function buildTasksMap() {
   const tasks: Task[] = (await db
     .select()
     .from(tasksTable)
@@ -107,12 +107,12 @@ async function buildTasksMap() {
  */
 export async function scheduleStart() {
   try {
-    // -----------------------TG_BOT-------------------------
+    // ----------------------- TG_BOT -------------------------
     bot.addEventHandler(
       async (event) => handlerBotCommands(bot, event),
       new NewMessage({ incoming: true }),
     );
-    // -----------------------TG_BOT-------------------------
+    // ----------------------- TG_BOT -------------------------
     if(intervalId) {
       clearInterval(intervalId)
       intervalId = null
@@ -140,7 +140,7 @@ export async function scheduleStart() {
 export async function handlerRawDataByAI(data: PostCreateSchema) {
   const openai = connectApi();
 
-  const now = moment().format('DD.MM.YYYYTHH:mm:ss');
+  const now = formatDateTime(Date.now(), 'DD.MM.YYYYTHH:mm:ss')
   const input = `${data.rawDeliveryAt};сегодня: ${now}`;
   console.debug({input});
 
@@ -148,7 +148,7 @@ export async function handlerRawDataByAI(data: PostCreateSchema) {
   const prepareRes = await openai.responses.create({
     prompt: {
       id: 'pmpt_68b19a283b088190a6db53880c15023b00f114902b3c1450',
-      version: '8',
+      version: '12',
       variables: {
         input_text: input,
       },

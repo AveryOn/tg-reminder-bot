@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc && tsc-alias",
+    "test": "vitest",
     "start": "node -r tsconfig-paths/register dist/src/index.js",
     "lint": "eslint . --ext .ts",
     "format": "prettier --write .",
@@ -44,6 +45,7 @@
     "prettier": "^3.6.2",
     "tsc-alias": "^1.8.16",
     "tsx": "^4.20.4",
-    "typescript-eslint": "^8.39.1"
+    "typescript-eslint": "^8.39.1",
+    "vitest": "^4.0.18"
   }
 }

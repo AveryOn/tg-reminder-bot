@@ -13,6 +13,7 @@ const envSchema = z.object({
   TG_API_ID: z.coerce.number().int().positive(),
   OPEN_AI_KEY: z.string().trim().min(1, 'OPEN_AI_KEY is required'),
   DB_FILE_NAME: z.string().trim().min(1, 'DB_FILE_NAME is required'),
+  TEST_AI_ENABLE: z.string().transform(a => a === 'true' ? true : false).optional(),
 });
 
 const rawEnv = {
@@ -24,6 +25,7 @@ const rawEnv = {
   TG_API_ID: process.env.TG_API_ID,
   OPEN_AI_KEY: process.env.OPEN_AI_KEY,
   DB_FILE_NAME: process.env.DB_FILE_NAME,
+  TEST_AI_ENABLE: process.env.TEST_AI_ENABLE,
 };
 
 const parsed = envSchema.safeParse(rawEnv);

@@ -7,7 +7,7 @@ export const tgChannel = new Hono();
 /**
  * Создать новый пост
  */
-tgChannel.post('/post', async (c) => {
+tgChannel.post('/test-ai', async (c) => {
   const body = await c.req.json();
 
   const { data, success, error } = postCreateSchema.safeParse(body);
@@ -19,7 +19,7 @@ tgChannel.post('/post', async (c) => {
 
   console.debug({ result });
 
-  return c.json({ success: 'ok' }, 201);
+  return c.json({ success: 'ok', data: result }, 201);
 });
 
 /**
