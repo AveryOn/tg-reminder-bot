@@ -8,6 +8,6 @@ exports.default = (0, drizzle_kit_1.defineConfig)({
   out: './drizzle',
   dialect: 'sqlite',
   dbCredentials: {
-    url: './data/db.sqlite',
+    url: `./data/${process.env.DB_FILE_NAME}`,
   },
 });
